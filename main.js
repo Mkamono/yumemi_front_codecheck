@@ -5,6 +5,7 @@ const vm = new Vue({
     prefecture: [], //[{prefName, prefCode}]
     graphdata: [],
     APIkey: "",
+    chart: null,
   },
   methods: {
     //TODO チェックをトリガーとしてグラフを更新
@@ -26,6 +27,54 @@ const vm = new Vue({
           for (let i = 0; i < json_pref.length; i++) {
             self.prefecture.push(json_pref[i]);
           }
+          self.chart = Highcharts.chart("container", {
+            // グラフ属性設定
+            title: {
+              text: "各都道府県の人口推移",
+            },
+            xAxis: {
+              title: {
+                text: "年",
+              },
+              crosshair: true,
+            },
+            yAxis: {
+              title: {
+                text: "総人口",
+              },
+              plotLines: [
+                {
+                  value: 0,
+                  width: 1,
+                  color: "#808080",
+                },
+              ],
+            },
+            legend: {
+              layout: "vertical",
+              align: "right",
+              verticalAlign: "middle",
+              borderWidth: 0,
+            },
+            series: self.graphdata,
+
+            responsive: {
+              rules: [
+                {
+                  condition: {
+                    maxWidth: 600,
+                  },
+                  chartOptions: {
+                    legend: {
+                      layout: "horizontal",
+                      align: "center",
+                      verticalAlign: "bottom",
+                    },
+                  },
+                },
+              ],
+            },
+          });
         });
     },
   },

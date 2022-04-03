@@ -13,10 +13,10 @@
     <header><h1>yumemi</h1></header>
     <div id="app">
       <p>API KEY = <input type="text" id="APIform" v-model="APIkey" /></p>
-      <label class="preflabel"
-        ><input type="checkbox" class="pref_check" />東京</label
+      <label class="preflabel" v-for="pref in prefecture"
+        ><input type="checkbox" class="pref_check" />{{pref.prefName}}</label
       >
-      <div id="graph"></div>
+      <div id="container"></div>
     </div>
   </body>
   <script src="main.js"></script>
