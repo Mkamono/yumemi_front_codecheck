@@ -8,11 +8,11 @@ const vm = new Vue({
     chart: null,
   },
   methods: {
-    //TODO チェックをトリガーとしてグラフを更新
+    //チェックをトリガーとしてグラフを更新
     updateGraph: function (event, prefecture) {
       const self = this;
       if (event.target.checked) {
-        //TODO 追加時の処理
+        //追加時の処理
         axios
           .get(
             `https://opendata.resas-portal.go.jp/api/v1/population/composition/perYear?prefCode=${prefecture.prefCode}`,
@@ -23,6 +23,7 @@ const vm = new Vue({
             }
           )
           .then(function (res) {
+            //TODO エラーコードが返って来たときのリトライ処理
             let result = res.data.result;
             let arraydata = []; //調査年、人口数の配列
             for (let index = 0; index < result.data[0].data.length; index++) {
@@ -30,11 +31,17 @@ const vm = new Vue({
               arraydata.push([element.year, element.value]);
             }
             self.graphdata.push({ name: prefecture.prefName, data: arraydata }); //highchartsのseriesと同じデータ構造で追加
+            self.chart.addSeries(self.graphdata.slice(-1)[0]); //graphdata末尾(今追加したデータ)をグラフのシリーズに追加
           });
       } else {
-        //TODO 削除時の処理
+        //削除時の処理
+        self.graphdata.forEach(function (element, index) {
+          if (element.name == prefecture.prefName) {
+            self.chart.series[index].remove(); //グラフから削除
+          }
+        });
         self.graphdata = self.graphdata.filter(function (element) {
-          return element.name != prefecture.prefName;
+          return element.name != prefecture.prefName; //データも削除
         });
       }
     },
@@ -50,6 +57,8 @@ const vm = new Vue({
           },
         })
         .then(function (res) {
+          //TODO エラーコードが返って来たときのリトライ処理
+          //TODO APIキーが通ったときのフォーム凍結処理
           //サーバーがないとcookieに直接入れるしか方法がわからないが大変良くないことだけは分かる
           document.cookie = `APIkey=${self.APIkey}; Samesite=strict; Secure; max-age=3600`;
           let json_pref = res.data.result; //jsonの都道府県名、コード配列
@@ -79,13 +88,19 @@ const vm = new Vue({
                 },
               ],
             },
+            tooltip: {
+              formatter: function () {
+                let y = Math.trunc(this.y / 10000);
+                return `${this.series.name}<br>${this.x}年<br><b>${y}万人</b>`;
+              },
+            },
             legend: {
               layout: "vertical",
               align: "right",
               verticalAlign: "middle",
               borderWidth: 0,
             },
-            series: self.graphdata,
+            series: [],
 
             responsive: {
               rules: [
