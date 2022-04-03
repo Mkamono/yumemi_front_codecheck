@@ -14,17 +14,11 @@ const vm = new Vue({
       const self = this;
       if (event.target.checked) {
         //追加時の処理
-        axios
-          .get(
-            `https://opendata.resas-portal.go.jp/api/v1/population/composition/perYear?prefCode=${prefecture.prefCode}`,
-            {
-              headers: {
-                "X-API-KEY": self.APIkey,
-              },
-            }
-          )
-          .then(function (res) {
-            //TODO エラーコードが返って来たときのリトライ処理
+        self.judgeRes(
+          self,
+          `https://opendata.resas-portal.go.jp/api/v1/population/composition/perYear?prefCode=${prefecture.prefCode}`,
+          function (res, self) {
+            //成功時処理
             let result = res.data.result;
             let arraydata = []; //調査年、人口数の配列
             for (let index = 0; index < result.data[0].data.length; index++) {
@@ -33,7 +27,8 @@ const vm = new Vue({
             }
             self.graphdata.push({ name: prefecture.prefName, data: arraydata }); //highchartsのseriesと同じデータ構造で追加
             self.chart.addSeries(self.graphdata.slice(-1)[0]); //graphdata末尾(今追加したデータ)をグラフのシリーズに追加
-          });
+          }
+        );
       } else {
         //削除時の処理
         self.graphdata.forEach(function (element, index) {
@@ -46,19 +41,43 @@ const vm = new Vue({
         });
       }
     },
-  },
-  watch: {
-    //TODO APIkeyが変更されるたびにRESAS APIにアクセス、県名をゲット
-    APIkey: function () {
-      const self = this;
+    judgeRes: function (self, url, funcObj) {
+      //self:Vueインスタンス, url:GET先, funcObj:通信成功後の処理
       axios
-        .get("https://opendata.resas-portal.go.jp/api/v1/prefectures", {
+        .get(url, {
           headers: {
             "X-API-KEY": self.APIkey,
           },
         })
         .then(function (res) {
-          //TODO エラーコードが返って来たときのリトライ処理
+          if (res.status == 200) {
+            //ネットワーク正常
+            let status = res.data.statusCode;
+            if (status == undefined) {
+              //API通信成功
+              funcObj(res, self);
+            } else if (status == "429") {
+              //TooManyRequests, リトライ
+              self.judgeRes(self, url, funcObj);
+            } else {
+              //API通信失敗(キーが違うなど), パス
+            }
+          } else {
+            //ネットワーク異常
+            alert("[Connection Error]: Please Reload Window");
+          }
+        });
+    },
+  },
+  watch: {
+    //TODO APIkeyが変更されるたびにRESAS APIにアクセス、県名をゲット
+    APIkey: function () {
+      const self = this;
+      self.judgeRes(
+        self,
+        "https://opendata.resas-portal.go.jp/api/v1/prefectures",
+        function (res, self) {
+          //成功時処理
           self.showform = false;
           //サーバーがないとcookieに直接入れるしか方法がわからないが大変良くないことだけは分かる
           document.cookie = `APIkey=${self.APIkey}; Samesite=strict; Secure; max-age=3600`;
@@ -120,7 +139,8 @@ const vm = new Vue({
               ],
             },
           });
-        });
+        }
+      );
     },
   },
   mounted() {
