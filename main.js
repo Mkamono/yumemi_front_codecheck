@@ -2,5 +2,13 @@
 const vm = new Vue({
   el: "#app",
   data: { prefecture: [], graphdata: [], APIkey: "" },
-  methods: {},
+  methods: {
+    //TODO チェックをトリガーとしてグラフを更新
+  },
+  watch: {
+    //TODO APIkeyが変更されるたびにRESAS APIにアクセス、県名をゲット
+  },
+  mounted() {
+    //TODO 自動入力処理
+  },
 });
