@@ -8,21 +8,50 @@
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="https://code.highcharts.com/highcharts.js"></script>
     <title>yumemi front codecheck</title>
+    <style>
+      body {
+        margin: 0%;
+      }
+      #header {
+        margin: 0%;
+        text-align: center;
+        background-color: rgb(0, 196, 39);
+        color: white;
+      }
+      #app {
+        margin: 8px;
+      }
+      #checkboxlist {
+        overflow: hidden;
+      }
+      .preflabel {
+        white-space: nowrap;
+        background-color: rgb(0, 175, 194);
+        border: solid 2px rgb(0, 143, 119);
+        border-radius: 4px;
+        margin: 0.1em;
+        float: left;
+        color: white;
+      }
+    </style>
   </head>
   <body>
-    <header><h1>yumemi</h1></header>
+    <header><h1 id="header">yumemi</h1></header>
     <div id="app">
       <p v-if="showform">
         API KEY = <input type="text" id="APIform" v-model="APIkey" />
       </p>
-      <p v-if="!showform">都道府県</p>
-      <label class="preflabel" v-for="prefecture in prefectures"
-        ><input
-          type="checkbox"
-          class="pref_check"
-          v-on:click="updateGraph($event, prefecture)"
-        />{{prefecture.prefName}}</label
-      >
+      <div id="checkboxlist">
+        <div class="preflabel" v-for="prefecture in prefectures">
+          <label
+            ><input
+              type="checkbox"
+              class="pref_check"
+              v-on:click="updateGraph($event, prefecture)"
+            />{{prefecture.prefName}}</label
+          >
+        </div>
+      </div>
       <div id="container"></div>
     </div>
   </body>
