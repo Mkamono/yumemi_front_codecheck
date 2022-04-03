@@ -6,6 +6,7 @@ const vm = new Vue({
     graphdata: [], //[{data, name}]
     APIkey: "",
     chart: null,
+    showform: true,
   },
   methods: {
     //チェックをトリガーとしてグラフを更新
@@ -58,7 +59,7 @@ const vm = new Vue({
         })
         .then(function (res) {
           //TODO エラーコードが返って来たときのリトライ処理
-          //TODO APIキーが通ったときのフォーム凍結処理
+          self.showform = false;
           //サーバーがないとcookieに直接入れるしか方法がわからないが大変良くないことだけは分かる
           document.cookie = `APIkey=${self.APIkey}; Samesite=strict; Secure; max-age=3600`;
           let json_pref = res.data.result; //jsonの都道府県名、コード配列

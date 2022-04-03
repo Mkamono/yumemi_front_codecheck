@@ -12,7 +12,10 @@
   <body>
     <header><h1>yumemi</h1></header>
     <div id="app">
-      <p>API KEY = <input type="text" id="APIform" v-model="APIkey" /></p>
+      <p v-if="showform">
+        API KEY = <input type="text" id="APIform" v-model="APIkey" />
+      </p>
+      <p v-if="!showform">都道府県</p>
       <label class="preflabel" v-for="prefecture in prefectures"
         ><input
           type="checkbox"
