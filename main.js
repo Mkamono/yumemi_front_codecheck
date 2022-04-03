@@ -79,8 +79,6 @@ const vm = new Vue({
         function (res, self) {
           //成功時処理
           self.showform = false;
-          //サーバーがないとcookieに直接入れるしか方法がわからないが大変良くないことだけは分かる
-          document.cookie = `APIkey=${self.APIkey}; Samesite=strict; Secure; max-age=3600`;
           let json_pref = res.data.result; //jsonの都道府県名、コード配列
           for (let i = 0; i < json_pref.length; i++) {
             self.prefectures.push(json_pref[i]);
@@ -144,14 +142,7 @@ const vm = new Vue({
     },
   },
   mounted() {
-    if (document.cookie != "") {
-      let arr = new Array(); //cookieを連想配列化
-      let tmp = document.cookie.split("; ");
-      for (let i = 0; i < tmp.length; i++) {
-        let data = tmp[i].split("=");
-        arr[data[0]] = decodeURIComponent(data[1]);
-      }
-      this.APIkey = arr["APIkey"];
-    }
+    //自動ログイン処理
+    this.APIkey = document.location.search.substring(1).split("=")[1];
   },
 });
